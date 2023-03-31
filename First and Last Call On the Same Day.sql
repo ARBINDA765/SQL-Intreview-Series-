@@ -1,8 +1,8 @@
 USE SSIS
 
---Problem Description –
+--Problem Description â€“
 --Ask by Subex
---SQL Interview Questions – First and Last Call On the Same Day
+--SQL Interview Questions â€“ First and Last Call On the Same Day
 --Write an SQL query to report the  Callerid,Recipientid  of the users whose first and last calls on any day were with the 
 --same personalong with  Datecalled column
 
@@ -35,34 +35,32 @@ values (1, 2, '2019-01-01 09:00:00.000'),
        (2, 4, '2019-08-02 11:00:00.000'),
 	   (10, 11, '2020-08-02 11:00:00.000');
 
----SQL Interview Questions – First and Last Call On the Same Day
+---SQL Interview Questions â€“ First and Last Call On the Same Day
 --Write an SQL query to report the IDs of the users whose first and last calls on any day were with the same person. 
 --Calls are counted regardless of being the caller or the recipient.
 
 SELECT * FROM cdr_log 
 
-WITH CTE_First_Call as
+WITH CTE_First_Call as 
 (
-SELECT c.Callerid,c.Recipientid,(Datecalled) as 'Datecalled',
-DENSE_RANK() OVER(PARTITION BY Callerid,CAST (Datecalled as date) ORDER BY Datecalled ) as 'First_call_Rank'
-FROM cdr_log c
-
+SELECT Callerid,Recipientid,Datecalled,
+DENSE_RANK() OVER (PARTITION BY Callerid, CAST (Datecalled as date) ORDER BY Datecalled ) as 'First_Call_Rank'
+FROM cdr_log cdr
 ),
-CTE_Last_Call as 
+CTE_Last_call as 
 (
-SELECT c.Callerid,c.Recipientid, (Datecalled) as 'Datecalled' ,
-DENSE_RANK() OVER(PARTITION BY Callerid,CAST (Datecalled as date) ORDER BY Datecalled DESC) as 'Last_call_Rank'
-FROM cdr_log c 
 
+SELECT Callerid,Recipientid,Datecalled,
+DENSE_RANK() OVER (PARTITION BY Callerid, CAST (Datecalled as date) ORDER BY Datecalled DESC ) as 'Last_Call_Rank'
+FROM cdr_log cdr
 )
 
-SELECT CTE_First_Call.Callerid,CTE_First_Call.Recipientid, CAST (CTE_First_Call.Datecalled as date) as 'Datecalled'
-
-FROM CTE_First_Call INNER JOIN CTE_Last_Call 
-ON CAST(CTE_First_Call.Datecalled as date)= CAST (CTE_Last_Call.Datecalled as date) AND 
-CTE_First_Call.Callerid=CTE_Last_Call.Callerid AND 
-CTE_First_Call.Recipientid=CTE_Last_Call.Recipientid AND
-CTE_First_Call.First_call_Rank=1 AND CTE_Last_Call.Last_call_Rank=1
+SELECT CTE_First_Call.Callerid,CTE_First_Call.Recipientid,CAST (CTE_First_Call.Datecalled as date) as Datecalled
+FROM CTE_First_Call INNER JOIN CTE_Last_call
+ON CTE_First_Call.Callerid=CTE_Last_call.Callerid AND
+CTE_First_Call.Recipientid=CTE_Last_call.Recipientid AND
+CAST (CTE_First_Call.Datecalled as date)=CAST (CTE_Last_call.Datecalled as date) AND 
+CTE_First_Call.First_Call_Rank=1 AND CTE_Last_call.Last_Call_Rank=1
 
 
 

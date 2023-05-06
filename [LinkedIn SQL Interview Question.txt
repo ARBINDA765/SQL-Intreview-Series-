@@ -1,0 +1,11 @@
+WITH CTE_SKILL as 
+(
+SELECT candidate_id,STRING_AGG(skill,','ORDER BY skill desc ) as all_skill
+FROM candidates 
+GROUP BY candidate_id
+) 
+
+SELECT candidate_id
+FROM CTE_SKILL
+WHERE all_skill like '%Tableau,Python,PostgreSQL%'
+ORDER BY candidate_id
